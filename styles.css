@@ -60,14 +60,12 @@ textarea {
   gap: 12px;
 }
 
-.brand-mark {
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  background: rgba(255, 255, 255, 0.12);
-  font-weight: 800;
+.brand-logo {
+  display: block;
+  width: 146px;
+  height: 82px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.28));
 }
 
 .brand strong,
@@ -722,9 +720,9 @@ textarea:focus {
     display: none;
   }
 
-  .brand-mark {
-    width: 38px;
-    height: 38px;
+  .brand-logo {
+    width: 118px;
+    height: 66px;
   }
 
   .hero-actions,
