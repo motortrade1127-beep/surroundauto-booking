@@ -10,6 +10,10 @@ const dataDir = path.join(rootDir, "data");
 const bookingsFile = path.join(dataDir, "bookings.jsonl");
 const paymentsFile = path.join(dataDir, "payments.jsonl");
 const productsFile = path.join(rootDir, "products.json");
+const maxPhotoCount = 5;
+const maxPhotoBytes = 15 * 1024 * 1024;
+const maxRequestBytes = 18 * 1024 * 1024;
+const allowedPhotoTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 const loadDotEnv = () => {
   const envPath = path.join(rootDir, ".env");
@@ -69,24 +73,32 @@ const sendJson = (res, statusCode, payload) => {
   res.end(JSON.stringify(payload));
 };
 
-const readBody = (req) =>
+const readRawBody = (req, maxBytes = 1_000_000) =>
   new Promise((resolve, reject) => {
-    let body = "";
-    req.setEncoding("utf8");
+    const chunks = [];
+    let size = 0;
     req.on("data", (chunk) => {
-      body += chunk;
-      if (body.length > 1_000_000) {
+      size += chunk.length;
+      if (size > maxBytes) {
         req.destroy();
         reject(new Error("Request body is too large"));
+        return;
       }
+      chunks.push(chunk);
     });
-    req.on("end", () => resolve(body));
+    req.on("end", () => resolve(Buffer.concat(chunks)));
     req.on("error", reject);
   });
+
+const readBody = async (req, maxBytes) => (await readRawBody(req, maxBytes)).toString("utf8");
 
 const safeText = (value, maxLength = 2000) => String(value || "").trim().slice(0, maxLength);
 const safeErrorMessage = (error) =>
   safeText(error.response || error.message || "Email provider rejected the message", 240);
+const safeFileName = (value) => {
+  const fileName = path.basename(String(value || "vehicle-photo").replaceAll("\\", "/"));
+  return fileName.replace(/[^a-zA-Z0-9._ -]/g, "_").slice(0, 120) || "vehicle-photo";
+};
 
 const makeBookingId = () => {
   const date = new Date().toISOString().slice(0, 10).replaceAll("-", "");
@@ -104,22 +116,116 @@ const loadProducts = async () => {
   return JSON.parse(raw);
 };
 
+const parseMultipartForm = async (req) => {
+  const contentType = req.headers["content-type"] || "";
+  const boundaryMatch = contentType.match(/boundary=(?:"([^"]+)"|([^;]+))/i);
+  if (!boundaryMatch) {
+    const error = new Error("Missing multipart boundary");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const boundary = Buffer.from(`--${boundaryMatch[1] || boundaryMatch[2]}`);
+  const body = await readRawBody(req, maxRequestBytes);
+  const fields = {};
+  const files = [];
+  let cursor = 0;
+
+  while (cursor < body.length) {
+    const boundaryIndex = body.indexOf(boundary, cursor);
+    if (boundaryIndex === -1) break;
+
+    const nextByte = body[boundaryIndex + boundary.length];
+    const afterBoundary = boundaryIndex + boundary.length;
+    if (nextByte === 45 && body[afterBoundary + 1] === 45) break;
+
+    let partStart = afterBoundary;
+    if (body[partStart] === 13 && body[partStart + 1] === 10) partStart += 2;
+
+    const headerEnd = body.indexOf(Buffer.from("\r\n\r\n"), partStart);
+    if (headerEnd === -1) break;
+
+    const headerText = body.slice(partStart, headerEnd).toString("utf8");
+    const partEnd = body.indexOf(boundary, headerEnd + 4);
+    if (partEnd === -1) break;
+
+    let content = body.slice(headerEnd + 4, partEnd);
+    if (content.length >= 2 && content[content.length - 2] === 13 && content[content.length - 1] === 10) {
+      content = content.slice(0, -2);
+    }
+
+    const disposition = headerText.match(/content-disposition:\s*form-data;([^\r\n]*)/i)?.[1] || "";
+    const name = disposition.match(/name="([^"]+)"/i)?.[1] || "";
+    const fileName = disposition.match(/filename="([^"]*)"/i)?.[1] || "";
+    const mimeType = headerText.match(/content-type:\s*([^\r\n]+)/i)?.[1]?.trim() || "application/octet-stream";
+
+    if (name && fileName) {
+      files.push({
+        fieldName: name,
+        fileName: safeFileName(fileName),
+        mimeType,
+        content,
+      });
+    } else if (name) {
+      fields[name] = content.toString("utf8");
+    }
+
+    cursor = partEnd;
+  }
+
+  return { fields, files };
+};
+
+const normalizeBookingPayload = (payload) => ({
+  ...payload,
+  serviceKey: payload.serviceKey || payload.serviceType,
+  preferredDate: payload.preferredDate || payload.date,
+});
+
+const validatePhotoAttachments = (files) => {
+  const photos = files.filter((file) => file.fieldName === "photos" && file.content.length > 0);
+  const totalBytes = photos.reduce((sum, file) => sum + file.content.length, 0);
+
+  if (photos.length > maxPhotoCount) {
+    const error = new Error(`Please upload no more than ${maxPhotoCount} photos`);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (totalBytes > maxPhotoBytes) {
+    const error = new Error("Photo uploads must be 15MB total or less");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const invalid = photos.find((file) => !allowedPhotoTypes.has(file.mimeType));
+  if (invalid) {
+    const error = new Error("Only JPG, PNG and WebP photos are supported");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  return photos;
+};
+
 const validateBooking = (payload) => {
-  const serviceKey = payload.serviceKey === "paint" ? "paint" : "mechanical";
+  const normalizedPayload = normalizeBookingPayload(payload);
+  const serviceKey = normalizedPayload.serviceKey === "paint" ? "paint" : "mechanical";
   const booking = {
     id: makeBookingId(),
     createdAt: new Date().toISOString(),
     serviceKey,
     serviceLabel: serviceLabels[serviceKey],
     recipientEmail: config.recipients[serviceKey],
-    name: safeText(payload.name, 120),
-    phone: safeText(payload.phone, 80),
-    email: safeText(payload.email, 160),
-    preferredDate: safeText(payload.preferredDate, 40),
-    vehicle: safeText(payload.vehicle, 180),
-    plate: safeText(payload.plate, 40),
-    details: safeText(payload.details, 4000),
-    language: payload.language === "zh" ? "zh" : "en",
+    name: safeText(normalizedPayload.name, 120),
+    phone: safeText(normalizedPayload.phone, 80),
+    email: safeText(normalizedPayload.email, 160),
+    preferredDate: safeText(normalizedPayload.preferredDate, 40),
+    vehicle: safeText(normalizedPayload.vehicle, 180),
+    plate: safeText(normalizedPayload.plate, 40),
+    details: safeText(normalizedPayload.details, 4000),
+    language: normalizedPayload.language === "zh" ? "zh" : "en",
+    attachments: [],
   };
 
   const missingFields = [];
@@ -154,41 +260,74 @@ const formatBookingHtml = (booking) => `
   <p><strong>Preferred date:</strong> ${escapeHtml(booking.preferredDate)}</p>
   <p><strong>Vehicle:</strong> ${escapeHtml(booking.vehicle)}</p>
   <p><strong>Plate:</strong> ${escapeHtml(booking.plate || "Not provided")}</p>
+  <p><strong>Photos:</strong> ${
+    booking.attachments.length
+      ? booking.attachments.map((file) => escapeHtml(file.fileName)).join(", ")
+      : "Not provided"
+  }</p>
   <p><strong>Details:</strong></p>
   <p>${escapeHtml(booking.details).replaceAll("\n", "<br>")}</p>
 `;
 
-const formatBookingText = (booking) => [
-  "New Surround Auto booking",
-  `Booking ID: ${booking.id}`,
-  `Service: ${booking.serviceLabel}`,
-  `Name: ${booking.name}`,
-  `Phone: ${booking.phone}`,
-  `Email: ${booking.email || "Not provided"}`,
-  `Preferred date: ${booking.preferredDate}`,
-  `Vehicle: ${booking.vehicle}`,
-  `Plate: ${booking.plate || "Not provided"}`,
-  "",
-  "Details:",
-  booking.details,
-].join("\n");
+const formatBookingText = (booking) => {
+  const photoNames = booking.attachments.map((file) => file.fileName).join(", ") || "Not provided";
+  return [
+    "New Surround Auto booking",
+    `Booking ID: ${booking.id}`,
+    `Service: ${booking.serviceLabel}`,
+    `Name: ${booking.name}`,
+    `Phone: ${booking.phone}`,
+    `Email: ${booking.email || "Not provided"}`,
+    `Preferred date: ${booking.preferredDate}`,
+    `Vehicle: ${booking.vehicle}`,
+    `Plate: ${booking.plate || "Not provided"}`,
+    `Photos: ${photoNames}`,
+    "",
+    "Details:",
+    booking.details,
+  ].join("\n");
+};
+
+const formatResendAttachments = (booking) =>
+  booking.attachments.map((file) => ({
+    filename: file.fileName,
+    content: file.content.toString("base64"),
+    content_type: file.mimeType,
+  }));
+
+const formatNodemailerAttachments = (booking) =>
+  booking.attachments.map((file) => ({
+    filename: file.fileName,
+    content: file.content,
+    contentType: file.mimeType,
+  }));
 
 const sendBookingEmail = async (booking) => {
-  if (config.resendApiKey && config.fromEmail) {
+  if (config.resendApiKey) {
+    if (!config.fromEmail) {
+      throw new Error("Resend is configured but FROM_EMAIL is missing");
+    }
+
+    const emailPayload = {
+      from: config.fromEmail,
+      to: [booking.recipientEmail],
+      reply_to: booking.email || undefined,
+      subject: `Surround Auto booking ${booking.id} - ${booking.serviceLabel}`,
+      html: formatBookingHtml(booking),
+      text: formatBookingText(booking),
+    };
+
+    if (booking.attachments.length) {
+      emailPayload.attachments = formatResendAttachments(booking);
+    }
+
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${config.resendApiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        from: config.fromEmail,
-        to: [booking.recipientEmail],
-        reply_to: booking.email || undefined,
-        subject: `Surround Auto booking ${booking.id} - ${booking.serviceLabel}`,
-        html: formatBookingHtml(booking),
-        text: formatBookingText(booking),
-      }),
+      body: JSON.stringify(emailPayload),
     });
 
     if (!response.ok) {
@@ -208,6 +347,7 @@ const sendBookingEmail = async (booking) => {
     subject: `Surround Auto booking ${booking.id} - ${booking.serviceLabel}`,
     html: formatBookingHtml(booking),
     text: formatBookingText(booking),
+    attachments: formatNodemailerAttachments(booking),
   };
 
   const createGmailTransport = (port, secure) =>
@@ -284,9 +424,14 @@ const createStripeCheckout = async (product, quantity, language) => {
 
 const handleBooking = async (req, res) => {
   try {
-    const rawBody = await readBody(req);
-    const payload = rawBody ? JSON.parse(rawBody) : {};
+    const contentType = req.headers["content-type"] || "";
+    const parsedRequest = contentType.startsWith("multipart/form-data")
+      ? await parseMultipartForm(req)
+      : { fields: JSON.parse((await readBody(req)) || "{}"), files: [] };
+    const payload = parsedRequest.fields;
     const booking = validateBooking(payload);
+    const photoAttachments = validatePhotoAttachments(parsedRequest.files);
+    booking.attachments = photoAttachments;
 
     let emailStatus = "not_configured";
     try {
@@ -306,6 +451,11 @@ const handleBooking = async (req, res) => {
 
     await appendJsonLine(bookingsFile, {
       ...booking,
+      attachments: photoAttachments.map((file) => ({
+        fileName: file.fileName,
+        mimeType: file.mimeType,
+        size: file.content.length,
+      })),
       emailStatus,
     });
 

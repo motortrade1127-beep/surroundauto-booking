@@ -58,6 +58,12 @@ const translations = {
     vehicleLabel: "Vehicle",
     plateLabel: "Plate number",
     detailsLabel: "Issue details",
+    photosLabel: "Vehicle photos",
+    photosHelp: "Optional. Add up to 5 JPG, PNG or WebP photos, 15MB total.",
+    photosSelected: ({ count, size }) => `${count} photo${count === 1 ? "" : "s"} selected (${size}).`,
+    photosTooMany: "Please choose up to 5 photos.",
+    photosTooLarge: "Photos must be 15MB total or less.",
+    photosInvalid: "Please choose JPG, PNG or WebP images only.",
     namePlaceholder: "e.g. Chen",
     phonePlaceholder: "e.g. 021 000 0000",
     vehiclePlaceholder: "e.g. Toyota Aqua 2016",
@@ -148,6 +154,12 @@ const translations = {
     vehicleLabel: "车辆信息",
     plateLabel: "车牌",
     detailsLabel: "问题描述",
+    photosLabel: "车辆照片",
+    photosHelp: "可选。最多上传 5 张 JPG、PNG 或 WebP 照片，总大小不超过 15MB。",
+    photosSelected: ({ count, size }) => `已选择 ${count} 张照片（${size}）。`,
+    photosTooMany: "最多只能选择 5 张照片。",
+    photosTooLarge: "照片总大小不能超过 15MB。",
+    photosInvalid: "请只选择 JPG、PNG 或 WebP 图片。",
     namePlaceholder: "例如：Chen",
     phonePlaceholder: "例如：021 000 0000",
     vehiclePlaceholder: "例如：Toyota Aqua 2016",
@@ -192,11 +204,50 @@ const toggleOptions = document.querySelectorAll("[data-lang-label]");
 const descriptionMeta = document.querySelector('meta[name="description"]');
 const submitButton = bookingForm.querySelector(".submit-button");
 const shopGrid = document.querySelector("#shopGrid");
+const photoUpload = document.querySelector("#photoUpload");
+const photoStatus = document.querySelector("#photoStatus");
 
 let currentLanguage = "en";
 let shopCatalog = [];
+const maxPhotoCount = 5;
+const maxPhotoBytes = 15 * 1024 * 1024;
+const allowedPhotoTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 const getDictionary = () => translations[currentLanguage];
+
+const formatBytes = (bytes) => {
+  if (!bytes) return "0 MB";
+  const megabytes = bytes / (1024 * 1024);
+  return `${megabytes.toFixed(megabytes >= 10 ? 0 : 1)} MB`;
+};
+
+const validatePhotos = () => {
+  const dictionary = getDictionary();
+  const files = Array.from(photoUpload?.files || []);
+  const totalBytes = files.reduce((sum, file) => sum + file.size, 0);
+  let message = "";
+  let isValid = true;
+
+  if (files.length > maxPhotoCount) {
+    message = dictionary.photosTooMany;
+    isValid = false;
+  } else if (totalBytes > maxPhotoBytes) {
+    message = dictionary.photosTooLarge;
+    isValid = false;
+  } else if (files.some((file) => !allowedPhotoTypes.has(file.type))) {
+    message = dictionary.photosInvalid;
+    isValid = false;
+  } else if (files.length) {
+    message = dictionary.photosSelected({ count: files.length, size: formatBytes(totalBytes) });
+  }
+
+  if (photoStatus) {
+    photoStatus.textContent = message;
+    photoStatus.classList.toggle("error", !isValid);
+  }
+
+  return isValid;
+};
 
 const buildSummary = (payload) => {
   const dictionary = getDictionary();
@@ -309,6 +360,7 @@ const setLanguage = (language) => {
   languageToggle.setAttribute("aria-pressed", String(language === "zh"));
   renderShop();
   updateConfirmation();
+  validatePhotos();
 };
 
 const setService = (service) => {
@@ -342,13 +394,16 @@ const showConfirmation = (payload) => {
 
 const submitToServer = async (payload) => {
   const controller = new AbortController();
-  const timeoutId = window.setTimeout(() => controller.abort(), 25000);
+  const timeoutId = window.setTimeout(() => controller.abort(), 45000);
+  const hasPhotos = Array.from(photoUpload?.files || []).length > 0;
+  const body = hasPhotos ? new FormData(bookingForm) : JSON.stringify(payload);
+  if (hasPhotos) body.set("language", currentLanguage);
 
   try {
     const response = await fetch("/api/bookings", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      headers: hasPhotos ? undefined : { "Content-Type": "application/json" },
+      body,
       signal: controller.signal,
     });
 
@@ -441,11 +496,15 @@ languageToggle.addEventListener("click", () => {
   setLanguage(currentLanguage === "en" ? "zh" : "en");
 });
 
+photoUpload.addEventListener("change", validatePhotos);
+
 bookingForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const dictionary = getDictionary();
   const payload = getFormPayload();
   const date = payload.preferredDate;
+
+  if (!validatePhotos()) return;
 
   submitButton.disabled = true;
   submitButton.textContent = dictionary.submittingButton;

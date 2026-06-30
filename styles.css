@@ -147,8 +147,10 @@ nav a:hover {
 
 .hero-image {
   z-index: 1;
-  object-fit: cover;
-  object-position: center;
+  object-fit: contain;
+  object-position: right center;
+  opacity: 0.24;
+  padding: clamp(120px, 12vw, 180px) clamp(24px, 7vw, 92px) clamp(48px, 8vw, 100px);
 }
 
 .hero-fallback {
@@ -574,6 +576,12 @@ textarea {
   background: #fbfaf7;
 }
 
+input[type="file"] {
+  min-height: auto;
+  padding: 11px 13px;
+  cursor: pointer;
+}
+
 textarea {
   resize: vertical;
 }
@@ -586,6 +594,20 @@ textarea:focus {
 
 .submit-button {
   width: 100%;
+}
+
+.file-field small {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.file-status {
+  min-height: 18px;
+}
+
+.file-status.error {
+  color: var(--red-dark);
 }
 
 .submit-button:disabled {

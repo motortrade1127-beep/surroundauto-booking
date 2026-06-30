@@ -43,7 +43,7 @@
       <section class="hero">
         <img
           class="hero-image"
-          src="file:///C:/Users/80%20Motors%20Hornby%20%2305/.codex/generated_images/019f10bd-e182-7bd0-84de-de63ebc65f39/ig_047f480eda20f0ee016a41ba277bc0819185958d07b15dd6cb.png"
+          src="./assets/surround-auto-logo-transparent-hd.png"
           alt="Modern auto repair workshop and paint work area"
           onerror="this.remove()"
           data-i18n-attr="alt:heroImageAlt"
@@ -193,6 +193,19 @@
               required
               data-i18n-attr="placeholder:detailsPlaceholder"
             ></textarea>
+          </label>
+
+          <label class="file-field">
+            <span data-i18n="photosLabel">Vehicle photos</span>
+            <input
+              id="photoUpload"
+              name="photos"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+            />
+            <small data-i18n="photosHelp">Optional. Add up to 5 JPG, PNG or WebP photos, 15MB total.</small>
+            <small class="file-status" id="photoStatus" aria-live="polite"></small>
           </label>
 
           <button class="submit-button" type="submit" data-i18n="submitButton">Submit booking</button>

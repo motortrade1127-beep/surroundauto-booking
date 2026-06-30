@@ -6,10 +6,11 @@ This version has a real booking server behind the page.
 
 - Mechanical repair requests route to `info@surroundauto.co.nz`.
 - Panel and paint requests route to `Panel@surroundauto.co.nz`.
+- Booking requests can include up to 5 vehicle photos as email attachments.
 - Shop items are loaded from `products.json`.
 - Shop payments go to Stripe as flexible `$1 NZD` units, so `50` quantity can represent `NZ$50`.
 - Bookings are saved locally in `data/bookings.jsonl`.
-- Email sending is ready through Resend once `RESEND_API_KEY` and `FROM_EMAIL` are configured.
+- Email sending is ready through Resend once `RESEND_API_KEY` is configured and `FROM_EMAIL` uses a verified Resend domain.
 - Stripe Checkout is ready once `STRIPE_SECRET_KEY` is configured.
 
 ## Local preview
@@ -48,8 +49,10 @@ Required for real email:
 
 ```text
 RESEND_API_KEY=...
-FROM_EMAIL=bookings@surroundauto.co.nz
+FROM_EMAIL="Surround Auto <bookings@surroundauto.co.nz>"
 ```
+
+Important: `onboarding@resend.dev` is only for Resend testing. For production bookings to `info@surroundauto.co.nz` and `Panel@surroundauto.co.nz`, verify `surroundauto.co.nz` in Resend and send from an address on that domain.
 
 Required for payment:
 

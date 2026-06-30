@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: surroundauto-booking
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: SITE_BASE_URL
+        value: https://surroundauto-booking.onrender.com
+      - key: BOOKING_CURRENCY
+        value: nzd
+      - key: FROM_EMAIL
+        value: Surround Auto <bookings@surroundauto.co.nz>
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MECHANICAL_EMAIL
+        value: info@surroundauto.co.nz
+      - key: PAINT_EMAIL
+        value: Panel@surroundauto.co.nz
