@@ -81,6 +81,8 @@ const translations = {
     emailSent: ({ recipient }) => `Sent to ${recipient}.`,
     emailFailed: ({ recipient }) =>
       `Saved locally, but email sending failed. Please check the server setup for ${recipient}.`,
+    emailFailedWithReason: ({ recipient, reason }) =>
+      `Saved locally, but email sending failed for ${recipient}. Reason: ${reason}`,
     submitFailed:
       "The booking could not be sent right now. Please try again or contact Surround Auto directly.",
     summary: ({ name, service, vehicle, date, phone, bookingId }) => {
@@ -165,6 +167,8 @@ const translations = {
     savedNoEmail: ({ recipient }) => `预约已本地保存。配置邮件服务后会发送到 ${recipient}。`,
     emailSent: ({ recipient }) => `预约已发送到 ${recipient}。`,
     emailFailed: ({ recipient }) => `预约已本地保存，但邮件发送失败。请检查 ${recipient} 的服务器设置。`,
+    emailFailedWithReason: ({ recipient, reason }) =>
+      `预约已本地保存，但邮件发送失败。原因：${reason}。请检查 ${recipient} 的邮件设置。`,
     submitFailed: "预约暂时无法发送。请重试，或直接联系 Surround Auto。",
     summary: ({ name, service, vehicle, date, phone, bookingId }) => {
       const prefix = bookingId ? `预约号 ${bookingId}：` : "";
@@ -210,6 +214,9 @@ const buildDeliveryMessage = (payload) => {
   if (payload.submitFailed) return dictionary.submitFailed;
   if (payload.localOnly) return dictionary.localOnly;
   if (payload.emailStatus === "sent") return dictionary.emailSent({ recipient });
+  if (payload.emailStatus === "failed" && payload.emailError) {
+    return dictionary.emailFailedWithReason({ recipient, reason: payload.emailError });
+  }
   if (payload.emailStatus === "failed") return dictionary.emailFailed({ recipient });
   return dictionary.savedNoEmail({ recipient });
 };
@@ -461,6 +468,7 @@ bookingForm.addEventListener("submit", async (event) => {
       bookingId: result.bookingId,
       recipientEmail: result.recipientEmail,
       emailStatus: result.emailStatus,
+      emailError: result.emailError,
     });
   } catch {
     showConfirmation({

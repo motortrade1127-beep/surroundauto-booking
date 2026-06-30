@@ -85,6 +85,8 @@ const readBody = (req) =>
   });
 
 const safeText = (value, maxLength = 2000) => String(value || "").trim().slice(0, maxLength);
+const safeErrorMessage = (error) =>
+  safeText(error.response || error.message || "Email provider rejected the message", 240);
 
 const makeBookingId = () => {
   const date = new Date().toISOString().slice(0, 10).replaceAll("-", "");
@@ -200,7 +202,9 @@ const sendBookingEmail = async (booking) => {
   if (!config.gmailUser || !config.gmailAppPassword) return "not_configured";
 
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
     connectionTimeout: 10000,
     greetingTimeout: 10000,
     socketTimeout: 10000,
@@ -281,7 +285,15 @@ const handleBooking = async (req, res) => {
       emailStatus = await sendBookingEmail(booking);
     } catch (error) {
       emailStatus = "failed";
-      booking.emailError = error.message;
+      booking.emailError = safeErrorMessage(error);
+      console.error("Booking email failed", {
+        bookingId: booking.id,
+        recipientEmail: booking.recipientEmail,
+        message: booking.emailError,
+        code: error.code,
+        command: error.command,
+        response: error.response,
+      });
     }
 
     await appendJsonLine(bookingsFile, {
@@ -294,6 +306,7 @@ const handleBooking = async (req, res) => {
       bookingId: booking.id,
       recipientEmail: booking.recipientEmail,
       emailStatus,
+      emailError: booking.emailError || "",
     });
   } catch (error) {
     sendJson(res, error.statusCode || 500, {
