@@ -1,87 +1,15 @@
-[
-  {
-    "id": "vehicle-check",
-    "name": "Vehicle Inspection",
-    "nameZh": "车辆检查",
-    "description": "General workshop inspection for everyday drivability and condition checks.",
-    "descriptionZh": "适合日常车况与驾驶状态检查。",
-    "category": "Inspection",
-    "priceLabel": "NZ$80",
-    "priceLabelZh": "NZ$80",
-    "note": "Starting workshop price",
-    "noteZh": "标准价格",
-    "unitAmountCents": 100,
-    "defaultQuantity": 80,
-    "minQuantity": 1,
-    "helper": "Choose quantity if we quote a different final amount.",
-    "helperZh": "如果最终报价不同，可再调整数量。"
+{
+  "name": "surroundauto-booking",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Surround Auto formal booking site with email routing and Stripe Checkout support.",
+  "scripts": {
+    "start": "node server.js"
   },
-  {
-    "id": "hybrid-check",
-    "name": "Hybrid Inspection",
-    "nameZh": "混动检查",
-    "description": "Hybrid system inspection focused on battery and drivetrain condition.",
-    "descriptionZh": "针对电池和混动系统状态的专项检查。",
-    "category": "Hybrid",
-    "priceLabel": "NZ$80",
-    "priceLabelZh": "NZ$80",
-    "note": "Starting workshop price",
-    "noteZh": "标准价格",
-    "unitAmountCents": 100,
-    "defaultQuantity": 80,
-    "minQuantity": 1,
-    "helper": "Choose quantity if we quote a different final amount.",
-    "helperZh": "如果最终报价不同，可再调整数量。"
+  "dependencies": {
+    "nodemailer": "^6.9.16"
   },
-  {
-    "id": "oil-service",
-    "name": "Oil Service",
-    "nameZh": "机油保养",
-    "description": "Oil and filter service for routine maintenance appointments.",
-    "descriptionZh": "适合常规保养的机油与机滤服务。",
-    "category": "Service",
-    "priceLabel": "NZ$150",
-    "priceLabelZh": "NZ$150",
-    "note": "Starting workshop price",
-    "noteZh": "标准价格",
-    "unitAmountCents": 100,
-    "defaultQuantity": 150,
-    "minQuantity": 1,
-    "helper": "Choose quantity if we quote a different final amount.",
-    "helperZh": "如果最终报价不同，可再调整数量。"
-  },
-  {
-    "id": "full-service",
-    "name": "Full Service",
-    "nameZh": "全保养",
-    "description": "Full scheduled service covering key fluids, checks and service items.",
-    "descriptionZh": "包含主要油液、检查项目和保养项目的完整保养服务。",
-    "category": "Service",
-    "priceLabel": "NZ$220",
-    "priceLabelZh": "NZ$220",
-    "note": "Starting workshop price",
-    "noteZh": "标准价格",
-    "unitAmountCents": 100,
-    "defaultQuantity": 220,
-    "minQuantity": 1,
-    "helper": "Choose quantity if we quote a different final amount.",
-    "helperZh": "如果最终报价不同，可再调整数量。"
-  },
-  {
-    "id": "tyre-replacement",
-    "name": "Tyre Replacement",
-    "nameZh": "更换轮胎",
-    "description": "Tyre replacement payment item for common workshop tyre jobs.",
-    "descriptionZh": "适用于常见轮胎更换工作的支付项目。",
-    "category": "Tyres",
-    "priceLabel": "From NZ$85",
-    "priceLabelZh": "NZ$85起",
-    "note": "Starting workshop price",
-    "noteZh": "起步价格",
-    "unitAmountCents": 100,
-    "defaultQuantity": 85,
-    "minQuantity": 1,
-    "helper": "Choose quantity if we quote a different final amount.",
-    "helperZh": "如果最终报价不同，可再调整数量。"
+  "engines": {
+    "node": ">=18"
   }
-]
+}
