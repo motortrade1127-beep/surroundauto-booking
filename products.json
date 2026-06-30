@@ -1,223 +1,87 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Surround Auto | Repair & Paint Booking</title>
-    <meta
-      name="description"
-      content="Book mechanical repairs and paint work with Surround Auto."
-    />
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <header class="site-header">
-      <a class="brand" href="#top" aria-label="Surround Auto home">
-        <img
-          class="brand-logo"
-          src="./assets/surround-auto-logo-transparent-hd.png"
-          alt="Surround Auto logo"
-        />
-      </a>
-      <div class="header-actions">
-        <nav aria-label="Page navigation">
-          <a href="#shop" data-i18n="navShop">Shop</a>
-          <a href="#services" data-i18n="navServices">Services</a>
-          <a href="#booking" data-i18n="navBooking">Booking</a>
-          <a href="#contact" data-i18n="navContact">Contact</a>
-        </nav>
-        <button
-          class="language-toggle"
-          id="languageToggle"
-          type="button"
-          aria-label="Switch language"
-          aria-pressed="false"
-        >
-          <span class="toggle-option active" data-lang-label="en">EN</span>
-          <span class="toggle-option" data-lang-label="zh">中文</span>
-        </button>
-      </div>
-    </header>
-
-    <main id="top">
-      <section class="hero">
-        <div class="hero-fallback" aria-hidden="true"></div>
-        <div class="hero-overlay" aria-hidden="true"></div>
-        <div class="hero-content">
-          <p class="eyebrow" data-i18n="heroEyebrow">Book your next service</p>
-          <h1 data-i18n="heroTitle">Surround Auto Booking Centre</h1>
-          <p class="hero-copy" data-i18n="heroCopy">
-            Mechanical repairs, vehicle checks, body paint and refinishing work, all booked in one clear place.
-          </p>
-          <div class="hero-actions">
-            <a class="button primary" href="#booking" data-i18n="heroPrimary">Book now</a>
-            <a class="button secondary" href="#services" data-i18n="heroSecondary">View services</a>
-          </div>
-        </div>
-      </section>
-
-      <section class="quick-bar" aria-label="Service highlights">
-        <div>
-          <strong data-i18n="quickOneTitle">2 service streams</strong>
-          <span data-i18n="quickOneText">Mechanical repairs / Paint work</span>
-        </div>
-        <div>
-          <strong data-i18n="quickTwoTitle">Flexible online shop</strong>
-          <span data-i18n="quickTwoText">$1 NZD units for services you price over time</span>
-        </div>
-        <div>
-          <strong data-i18n="quickThreeTitle">Clear triage</strong>
-          <span data-i18n="quickThreeText">Choose the right team for your vehicle issue</span>
-        </div>
-      </section>
-
-      <section class="section shop-section" id="shop">
-        <div class="section-heading shop-heading">
-          <div>
-            <p class="eyebrow" data-i18n="shopEyebrow">Shop</p>
-            <h2 data-i18n="shopTitle">Online service payments</h2>
-          </div>
-          <p class="shop-intro" data-i18n="shopIntro">
-            Create simple Stripe payments from flexible $1 NZD units. If a service should cost $50 NZD, the customer can buy 50 units.
-          </p>
-        </div>
-        <div class="shop-grid" id="shopGrid"></div>
-      </section>
-
-      <section class="section" id="services">
-        <div class="section-heading">
-          <p class="eyebrow" data-i18n="servicesEyebrow">Services</p>
-          <h2 data-i18n="servicesTitle">Choose the work you need</h2>
-        </div>
-        <div class="service-grid">
-          <article class="service-card">
-            <div class="service-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path d="M21 7.5a5.4 5.4 0 0 1-6.9 6.9L7.3 21.2a2.2 2.2 0 0 1-3.1-3.1l6.8-6.8A5.4 5.4 0 0 1 17.9 4l-3.2 3.2 2.1 2.1L20 6.1c.4.4.7.9 1 1.4Z" />
-              </svg>
-            </div>
-            <h3 data-i18n="mechanicalTitle">Mechanical repairs</h3>
-            <p data-i18n="mechanicalCopy">
-              For servicing, engine issues, brakes, suspension, diagnostics, pre-WOF checks and general repair bookings.
-            </p>
-            <button class="service-select" type="button" data-service="mechanical" data-i18n="mechanicalButton">
-              Book mechanical repairs
-            </button>
-          </article>
-
-          <article class="service-card accent">
-            <div class="service-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path d="M4 16.5c0-1.1.9-2 2-2h8.4l3.9-3.9a2.1 2.1 0 0 1 3 3L17.4 17.5H6a2 2 0 0 1-2-2Zm2.6 3.8a1.7 1.7 0 1 0 0-3.4 1.7 1.7 0 0 0 0 3.4Zm10.2-10.8L10 2.7 7.8 4.9l6.8 6.8 2.2-2.2Z" />
-              </svg>
-            </div>
-            <h3 data-i18n="paintTitle">Paint work</h3>
-            <p data-i18n="paintCopy">
-              For scratch repair, panel paint, bumper refinishing, body repairs and exterior refresh bookings.
-            </p>
-            <button class="service-select" type="button" data-service="paint" data-i18n="paintButton">
-              Book paint work
-            </button>
-          </article>
-        </div>
-      </section>
-
-      <section class="booking-section" id="booking">
-        <div class="booking-copy">
-          <p class="eyebrow" data-i18n="bookingEyebrow">Appointment</p>
-          <h2 data-i18n="bookingTitle">Enter your booking details</h2>
-          <p data-i18n="bookingIntro">
-            Select a service type, then leave your vehicle and contact details. The page will show a booking summary after you submit.
-          </p>
-          <div class="booking-note">
-            <strong data-i18n="bookingNoteTitle">Helpful details</strong>
-            <span data-i18n="bookingNoteText">Plate number, vehicle model, issue description and preferred date.</span>
-          </div>
-        </div>
-
-        <form class="booking-form" id="bookingForm">
-          <fieldset>
-            <legend data-i18n="serviceTypeLabel">Service type</legend>
-            <div class="segmented" role="group" aria-label="Service type">
-              <label>
-                <input type="radio" name="serviceType" value="mechanical" checked />
-                <span data-i18n="mechanicalShort">Mechanical repairs</span>
-              </label>
-              <label>
-                <input type="radio" name="serviceType" value="paint" />
-                <span data-i18n="paintShort">Paint work</span>
-              </label>
-            </div>
-          </fieldset>
-
-          <div class="form-grid">
-            <label>
-              <span data-i18n="nameLabel">Name</span>
-              <input name="name" type="text" placeholder="e.g. Chen" required data-i18n-attr="placeholder:namePlaceholder" />
-            </label>
-            <label>
-              <span data-i18n="phoneLabel">Phone</span>
-              <input name="phone" type="tel" placeholder="e.g. 021 000 0000" required data-i18n-attr="placeholder:phonePlaceholder" />
-            </label>
-            <label>
-              <span data-i18n="emailLabel">Email</span>
-              <input name="email" type="email" placeholder="name@example.com" />
-            </label>
-            <label>
-              <span data-i18n="dateLabel">Preferred date</span>
-              <input name="date" type="date" required />
-            </label>
-            <label>
-              <span data-i18n="vehicleLabel">Vehicle</span>
-              <input name="vehicle" type="text" placeholder="e.g. Toyota Aqua 2016" required data-i18n-attr="placeholder:vehiclePlaceholder" />
-            </label>
-            <label>
-              <span data-i18n="plateLabel">Plate number</span>
-              <input name="plate" type="text" placeholder="e.g. ABC123" data-i18n-attr="placeholder:platePlaceholder" />
-            </label>
-          </div>
-
-          <label>
-            <span data-i18n="detailsLabel">Issue details</span>
-            <textarea
-              name="details"
-              rows="5"
-              placeholder="Briefly describe the issue, damage location or work you want done"
-              required
-              data-i18n-attr="placeholder:detailsPlaceholder"
-            ></textarea>
-          </label>
-
-          <button class="submit-button" type="submit" data-i18n="submitButton">Submit booking</button>
-          <p class="privacy-note" data-i18n="privacyNote">Bookings are routed to the correct Surround Auto team when this site is opened through the booking server.</p>
-        </form>
-      </section>
-
-      <section class="confirmation" id="confirmation" aria-live="polite" hidden>
-        <div>
-          <p class="eyebrow" data-i18n="confirmationEyebrow">Request received</p>
-          <h2 data-i18n="confirmationTitle">Booking summary</h2>
-          <p id="summaryText"></p>
-          <p class="delivery-status" id="deliveryText"></p>
-        </div>
-        <div class="confirmation-actions">
-          <button class="button secondary" id="newBooking" type="button" data-i18n="newBookingButton">Start again</button>
-        </div>
-      </section>
-
-      <section class="contact-strip" id="contact">
-        <div>
-          <p class="eyebrow" data-i18n="contactEyebrow">Contact</p>
-          <h2>Surround Auto</h2>
-        </div>
-        <div class="contact-list">
-          <span data-i18n="contactPhone">Phone: 021 000 0000</span>
-          <span data-i18n="contactAddress">Address: Auckland, New Zealand</span>
-          <span data-i18n="contactHours">Hours: Mon-Sat 8:30-17:30</span>
-        </div>
-      </section>
-    </main>
-
-    <script src="./app.js"></script>
-  </body>
-</html>
+[
+  {
+    "id": "vehicle-check",
+    "name": "Vehicle Inspection",
+    "nameZh": "车辆检查",
+    "description": "General workshop inspection for everyday drivability and condition checks.",
+    "descriptionZh": "适合日常车况与驾驶状态检查。",
+    "category": "Inspection",
+    "priceLabel": "NZ$80",
+    "priceLabelZh": "NZ$80",
+    "note": "Starting workshop price",
+    "noteZh": "标准价格",
+    "unitAmountCents": 100,
+    "defaultQuantity": 80,
+    "minQuantity": 1,
+    "helper": "Choose quantity if we quote a different final amount.",
+    "helperZh": "如果最终报价不同，可再调整数量。"
+  },
+  {
+    "id": "hybrid-check",
+    "name": "Hybrid Inspection",
+    "nameZh": "混动检查",
+    "description": "Hybrid system inspection focused on battery and drivetrain condition.",
+    "descriptionZh": "针对电池和混动系统状态的专项检查。",
+    "category": "Hybrid",
+    "priceLabel": "NZ$80",
+    "priceLabelZh": "NZ$80",
+    "note": "Starting workshop price",
+    "noteZh": "标准价格",
+    "unitAmountCents": 100,
+    "defaultQuantity": 80,
+    "minQuantity": 1,
+    "helper": "Choose quantity if we quote a different final amount.",
+    "helperZh": "如果最终报价不同，可再调整数量。"
+  },
+  {
+    "id": "oil-service",
+    "name": "Oil Service",
+    "nameZh": "机油保养",
+    "description": "Oil and filter service for routine maintenance appointments.",
+    "descriptionZh": "适合常规保养的机油与机滤服务。",
+    "category": "Service",
+    "priceLabel": "NZ$150",
+    "priceLabelZh": "NZ$150",
+    "note": "Starting workshop price",
+    "noteZh": "标准价格",
+    "unitAmountCents": 100,
+    "defaultQuantity": 150,
+    "minQuantity": 1,
+    "helper": "Choose quantity if we quote a different final amount.",
+    "helperZh": "如果最终报价不同，可再调整数量。"
+  },
+  {
+    "id": "full-service",
+    "name": "Full Service",
+    "nameZh": "全保养",
+    "description": "Full scheduled service covering key fluids, checks and service items.",
+    "descriptionZh": "包含主要油液、检查项目和保养项目的完整保养服务。",
+    "category": "Service",
+    "priceLabel": "NZ$220",
+    "priceLabelZh": "NZ$220",
+    "note": "Starting workshop price",
+    "noteZh": "标准价格",
+    "unitAmountCents": 100,
+    "defaultQuantity": 220,
+    "minQuantity": 1,
+    "helper": "Choose quantity if we quote a different final amount.",
+    "helperZh": "如果最终报价不同，可再调整数量。"
+  },
+  {
+    "id": "tyre-replacement",
+    "name": "Tyre Replacement",
+    "nameZh": "更换轮胎",
+    "description": "Tyre replacement payment item for common workshop tyre jobs.",
+    "descriptionZh": "适用于常见轮胎更换工作的支付项目。",
+    "category": "Tyres",
+    "priceLabel": "From NZ$85",
+    "priceLabelZh": "NZ$85起",
+    "note": "Starting workshop price",
+    "noteZh": "起步价格",
+    "unitAmountCents": 100,
+    "defaultQuantity": 85,
+    "minQuantity": 1,
+    "helper": "Choose quantity if we quote a different final amount.",
+    "helperZh": "如果最终报价不同，可再调整数量。"
+  }
+]
