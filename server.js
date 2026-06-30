@@ -201,27 +201,35 @@ const sendBookingEmail = async (booking) => {
 
   if (!config.gmailUser || !config.gmailAppPassword) return "not_configured";
 
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 10000,
-    auth: {
-      user: config.gmailUser,
-      pass: config.gmailAppPassword,
-    },
-  });
-
-  await transporter.sendMail({
+  const message = {
     from: config.fromEmail || config.gmailUser,
     to: booking.recipientEmail,
     replyTo: booking.email || undefined,
     subject: `Surround Auto booking ${booking.id} - ${booking.serviceLabel}`,
     html: formatBookingHtml(booking),
     text: formatBookingText(booking),
-  });
+  };
+
+  const createGmailTransport = (port, secure) =>
+    nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port,
+      secure,
+      connectionTimeout: 20000,
+      greetingTimeout: 20000,
+      socketTimeout: 20000,
+      auth: {
+        user: config.gmailUser,
+        pass: config.gmailAppPassword,
+      },
+    });
+
+  try {
+    await createGmailTransport(587, false).sendMail(message);
+  } catch (error) {
+    if (error.code !== "ETIMEDOUT" && error.code !== "ESOCKET") throw error;
+    await createGmailTransport(465, true).sendMail(message);
+  }
 
   return "sent";
 };

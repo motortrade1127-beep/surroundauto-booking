@@ -342,7 +342,7 @@ const showConfirmation = (payload) => {
 
 const submitToServer = async (payload) => {
   const controller = new AbortController();
-  const timeoutId = window.setTimeout(() => controller.abort(), 15000);
+  const timeoutId = window.setTimeout(() => controller.abort(), 25000);
 
   try {
     const response = await fetch("/api/bookings", {
