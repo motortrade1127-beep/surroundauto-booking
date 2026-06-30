@@ -1,61 +1,87 @@
-# Surround Auto Booking Setup
-
-This version has a real booking server behind the page.
-
-## What it does
-
-- Mechanical repair requests route to `info@surroundauto.co.nz`.
-- Panel and paint requests route to `Panel@surroundauto.co.nz`.
-- Shop items are loaded from `products.json`.
-- Shop payments go to Stripe as flexible `$1 NZD` units, so `50` quantity can represent `NZ$50`.
-- Bookings are saved locally in `data/bookings.jsonl`.
-- Email sending is ready through Resend once `RESEND_API_KEY` and `FROM_EMAIL` are configured.
-- Stripe Checkout is ready once `STRIPE_SECRET_KEY` is configured.
-
-## Local preview
-
-To test configuration locally, copy `.env.example` to `.env` and fill the values you want to test.
-
-```powershell
-node server.js
-```
-
-Then open:
-
-```text
-http://localhost:4173
-```
-
-## Adding new shop items
-
-Edit [products.json](C:\Users\80 Motors Hornby #05\Documents\Codex\2026-06-29\nin\outputs\surroundauto\products.json) and add a new object with:
-
-- `id`
-- `name` and `nameZh`
-- `description` and `descriptionZh`
-- `category`
-- `priceLabel`
-- `note`
-- `unitAmountCents`
-- `defaultQuantity`
-- `minQuantity`
-
-## Production environment values
-
-Copy `.env.example` into your hosting provider's environment settings. Do not publish real secret keys in the browser or in the code.
-
-Required for real email:
-
-```text
-RESEND_API_KEY=...
-FROM_EMAIL=bookings@surroundauto.co.nz
-```
-
-Required for payment:
-
-```text
-STRIPE_SECRET_KEY=sk_live_...
-BOOKING_CURRENCY=nzd
-SITE_BASE_URL=https://your-domain.co.nz
-STRIPE_WEBHOOK_SECRET=whsec_...
-```
+[
+  {
+    "id": "vehicle-check",
+    "name": "Vehicle Inspection",
+    "nameZh": "车辆检查",
+    "description": "General workshop inspection for everyday drivability and condition checks.",
+    "descriptionZh": "适合日常车况与驾驶状态检查。",
+    "category": "Inspection",
+    "priceLabel": "NZ$80",
+    "priceLabelZh": "NZ$80",
+    "note": "Starting workshop price",
+    "noteZh": "标准价格",
+    "unitAmountCents": 100,
+    "defaultQuantity": 80,
+    "minQuantity": 1,
+    "helper": "Choose quantity if we quote a different final amount.",
+    "helperZh": "如果最终报价不同，可再调整数量。"
+  },
+  {
+    "id": "hybrid-check",
+    "name": "Hybrid Inspection",
+    "nameZh": "混动检查",
+    "description": "Hybrid system inspection focused on battery and drivetrain condition.",
+    "descriptionZh": "针对电池和混动系统状态的专项检查。",
+    "category": "Hybrid",
+    "priceLabel": "NZ$80",
+    "priceLabelZh": "NZ$80",
+    "note": "Starting workshop price",
+    "noteZh": "标准价格",
+    "unitAmountCents": 100,
+    "defaultQuantity": 80,
+    "minQuantity": 1,
+    "helper": "Choose quantity if we quote a different final amount.",
+    "helperZh": "如果最终报价不同，可再调整数量。"
+  },
+  {
+    "id": "oil-service",
+    "name": "Oil Service",
+    "nameZh": "机油保养",
+    "description": "Oil and filter service for routine maintenance appointments.",
+    "descriptionZh": "适合常规保养的机油与机滤服务。",
+    "category": "Service",
+    "priceLabel": "NZ$150",
+    "priceLabelZh": "NZ$150",
+    "note": "Starting workshop price",
+    "noteZh": "标准价格",
+    "unitAmountCents": 100,
+    "defaultQuantity": 150,
+    "minQuantity": 1,
+    "helper": "Choose quantity if we quote a different final amount.",
+    "helperZh": "如果最终报价不同，可再调整数量。"
+  },
+  {
+    "id": "full-service",
+    "name": "Full Service",
+    "nameZh": "全保养",
+    "description": "Full scheduled service covering key fluids, checks and service items.",
+    "descriptionZh": "包含主要油液、检查项目和保养项目的完整保养服务。",
+    "category": "Service",
+    "priceLabel": "NZ$220",
+    "priceLabelZh": "NZ$220",
+    "note": "Starting workshop price",
+    "noteZh": "标准价格",
+    "unitAmountCents": 100,
+    "defaultQuantity": 220,
+    "minQuantity": 1,
+    "helper": "Choose quantity if we quote a different final amount.",
+    "helperZh": "如果最终报价不同，可再调整数量。"
+  },
+  {
+    "id": "tyre-replacement",
+    "name": "Tyre Replacement",
+    "nameZh": "更换轮胎",
+    "description": "Tyre replacement payment item for common workshop tyre jobs.",
+    "descriptionZh": "适用于常见轮胎更换工作的支付项目。",
+    "category": "Tyres",
+    "priceLabel": "From NZ$85",
+    "priceLabelZh": "NZ$85起",
+    "note": "Starting workshop price",
+    "noteZh": "起步价格",
+    "unitAmountCents": 100,
+    "defaultQuantity": 85,
+    "minQuantity": 1,
+    "helper": "Choose quantity if we quote a different final amount.",
+    "helperZh": "如果最终报价不同，可再调整数量。"
+  }
+]

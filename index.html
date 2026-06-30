@@ -1,223 +1,479 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Surround Auto | Repair & Paint Booking</title>
-    <meta
-      name="description"
-      content="Book mechanical repairs and paint work with Surround Auto."
-    />
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <header class="site-header">
-      <a class="brand" href="#top" aria-label="Surround Auto home">
-        <img
-          class="brand-logo"
-          src="./sa-logo-preview.svg"
-          alt="Surround Auto logo"
-        />
-      </a>
-      <div class="header-actions">
-        <nav aria-label="Page navigation">
-          <a href="#shop" data-i18n="navShop">Shop</a>
-          <a href="#services" data-i18n="navServices">Services</a>
-          <a href="#booking" data-i18n="navBooking">Booking</a>
-          <a href="#contact" data-i18n="navContact">Contact</a>
-        </nav>
-        <button
-          class="language-toggle"
-          id="languageToggle"
-          type="button"
-          aria-label="Switch language"
-          aria-pressed="false"
-        >
-          <span class="toggle-option active" data-lang-label="en">EN</span>
-          <span class="toggle-option" data-lang-label="zh">中文</span>
-        </button>
-      </div>
-    </header>
+const translations = {
+  en: {
+    pageTitle: "Surround Auto | Repair, Booking & Shop",
+    metaDescription: "Book Surround Auto services and create online Stripe payments for workshop items.",
+    navShop: "Shop",
+    navServices: "Services",
+    navBooking: "Booking",
+    navContact: "Contact",
+    heroImageAlt: "Modern auto repair workshop and paint work area",
+    heroEyebrow: "Book your next service",
+    heroTitle: "Surround Auto Booking Centre",
+    heroCopy:
+      "Mechanical repairs, vehicle checks, body paint and refinishing work, with a separate online payment shop.",
+    heroPrimary: "Book now",
+    heroSecondary: "View services",
+    quickOneTitle: "2 service streams",
+    quickOneText: "Mechanical repairs / Panel & paint",
+    quickTwoTitle: "Flexible online payment",
+    quickTwoText: "Flexible online payment",
+    quickThreeTitle: "Clear triage",
+    quickThreeText: "Choose the right team for your vehicle issue",
+    shopEyebrow: "Shop",
+    shopTitle: "Online service payments",
+    shopIntro:
+      "Flexible online payment for inspections, servicing and workshop items.",
+    shopQuantityLabel: "Quantity",
+    shopBuyButton: "Pay with Stripe",
+    shopLoading: "Loading shop items...",
+    shopEmpty: "No shop items are configured yet.",
+    shopLocalOnly: "Open the localhost booking site to use online payment.",
+    shopCreating: "Creating checkout...",
+    shopReady: "Stripe checkout is ready. Redirecting now.",
+    shopNotConfigured: "Stripe is not configured yet for this item.",
+    shopError: "Checkout could not be created right now.",
+    servicesEyebrow: "Services",
+    servicesTitle: "Choose the work you need",
+    mechanicalTitle: "Mechanical repairs",
+    mechanicalCopy:
+      "For servicing, engine issues, brakes, suspension, diagnostics, pre-WOF checks and general repair bookings.",
+    mechanicalButton: "Book mechanical repairs",
+    paintTitle: "Panel & paint work",
+    paintCopy:
+      "For scratch repair, panel paint, bumper refinishing, body repairs and exterior refresh bookings.",
+    paintButton: "Book panel & paint work",
+    bookingEyebrow: "Appointment",
+    bookingTitle: "Enter your booking details",
+    bookingIntro:
+      "Select a service type, then leave your vehicle and contact details. The system will route your request to the correct team.",
+    bookingNoteTitle: "Helpful details",
+    bookingNoteText: "Plate number, vehicle model, issue description and preferred date.",
+    serviceTypeLabel: "Service type",
+    mechanicalShort: "Mechanical repairs",
+    paintShort: "Panel & paint",
+    nameLabel: "Name",
+    phoneLabel: "Phone",
+    emailLabel: "Email",
+    dateLabel: "Preferred date",
+    vehicleLabel: "Vehicle",
+    plateLabel: "Plate number",
+    detailsLabel: "Issue details",
+    namePlaceholder: "e.g. Chen",
+    phonePlaceholder: "e.g. 021 000 0000",
+    vehiclePlaceholder: "e.g. Toyota Aqua 2016",
+    platePlaceholder: "e.g. ABC123",
+    detailsPlaceholder: "Briefly describe the issue, damage location or work you want done",
+    submitButton: "Submit booking",
+    submittingButton: "Sending...",
+    privacyNote:
+      "Bookings are routed to the correct Surround Auto team when this site is opened through the booking server.",
+    confirmationEyebrow: "Request received",
+    confirmationTitle: "Booking summary",
+    newBookingButton: "Start again",
+    contactEyebrow: "Contact",
+    contactPhone: "Phone: 021 000 0000",
+    contactAddress: "Address: 17 Epsom Road, Sockburn, Christchurch",
+    contactHours: "Hours: Mon-Sat 9:00-17:00",
+    localOnly:
+      "This page is open as a local file. Open the booking server URL to send emails.",
+    savedNoEmail: ({ recipient }) =>
+      `Saved locally. Configure the email provider to send this request to ${recipient}.`,
+    emailSent: ({ recipient }) => `Sent to ${recipient}.`,
+    emailFailed: ({ recipient }) =>
+      `Saved locally, but email sending failed. Please check the server setup for ${recipient}.`,
+    submitFailed:
+      "The booking could not be sent right now. Please try again or contact Surround Auto directly.",
+    summary: ({ name, service, vehicle, date, phone, bookingId }) => {
+      const prefix = bookingId ? `Booking ${bookingId}: ` : "";
+      return `${prefix}${name}, your ${service} request has been recorded for ${vehicle} on ${date}. We will contact you at ${phone} to confirm the exact time.`;
+    },
+    services: {
+      mechanical: "mechanical repairs",
+      paint: "panel & paint work",
+    },
+  },
+  zh: {
+    pageTitle: "Surround Auto | 预约与支付",
+    metaDescription: "Surround Auto 预约网页与在线 Stripe 支付商品区。",
+    navShop: "购物",
+    navServices: "服务",
+    navBooking: "预约",
+    navContact: "联系",
+    heroImageAlt: "现代汽车维修车间和油漆工作区域",
+    heroEyebrow: "预约你的下一次服务",
+    heroTitle: "Surround Auto 汽车预约中心",
+    heroCopy: "机械修理、车辆检查、车身油漆与补漆工作，另加独立的在线支付商品区。",
+    heroPrimary: "立即预约",
+    heroSecondary: "查看服务",
+    quickOneTitle: "2 条服务线",
+    quickOneText: "机械修理 / 喷漆钣金",
+    quickTwoTitle: "灵活在线支付",
+    quickTwoText: "灵活在线支付",
+    quickThreeTitle: "清晰分流",
+    quickThreeText: "按车辆问题安排合适工作",
+    shopEyebrow: "购物",
+    shopTitle: "在线服务支付",
+    shopIntro: "用于检查、保养和其他车间项目的灵活在线支付。",
+    shopQuantityLabel: "数量",
+    shopBuyButton: "前往 Stripe 支付",
+    shopLoading: "正在载入商品...",
+    shopEmpty: "目前还没有配置商品。",
+    shopLocalOnly: "请打开 localhost 版本网站使用在线支付。",
+    shopCreating: "正在创建支付链接...",
+    shopReady: "Stripe 支付链接已准备好，正在跳转。",
+    shopNotConfigured: "这个商品的 Stripe 支付还没配置好。",
+    shopError: "暂时无法创建支付链接。",
+    servicesEyebrow: "服务",
+    servicesTitle: "选择你需要的工作类型",
+    mechanicalTitle: "机械修理",
+    mechanicalCopy: "适合车辆保养、发动机异常、刹车、悬挂、诊断检查、WOF 前检查等维修预约。",
+    mechanicalButton: "预约机械修理",
+    paintTitle: "喷漆钣金",
+    paintCopy: "适合刮痕修复、局部补漆、保险杠喷漆、车身面板修复、整车外观翻新等预约。",
+    paintButton: "预约喷漆钣金",
+    bookingEyebrow: "预约",
+    bookingTitle: "填写预约信息",
+    bookingIntro: "先选择服务类别，再留下车辆和联系方式。系统会把预约发送给对应团队。",
+    bookingNoteTitle: "建议填写",
+    bookingNoteText: "车牌、车型、问题描述、理想日期。",
+    serviceTypeLabel: "服务类别",
+    mechanicalShort: "机械修理",
+    paintShort: "喷漆钣金",
+    nameLabel: "姓名",
+    phoneLabel: "电话",
+    emailLabel: "邮箱",
+    dateLabel: "预约日期",
+    vehicleLabel: "车辆信息",
+    plateLabel: "车牌",
+    detailsLabel: "问题描述",
+    namePlaceholder: "例如：Chen",
+    phonePlaceholder: "例如：021 000 0000",
+    vehiclePlaceholder: "例如：Toyota Aqua 2016",
+    platePlaceholder: "例如：ABC123",
+    detailsPlaceholder: "简单描述车辆问题、损伤位置或你想做的工作",
+    submitButton: "提交预约",
+    submittingButton: "正在发送...",
+    privacyNote: "通过预约服务器打开网站后，预约会自动发送给 Surround Auto 对应团队。",
+    confirmationEyebrow: "已收到请求",
+    confirmationTitle: "预约摘要",
+    newBookingButton: "重新填写",
+    contactEyebrow: "联系",
+    contactPhone: "电话：021 000 0000",
+    contactAddress: "地址：17 Epsom Road, Sockburn, Christchurch",
+    contactHours: "营业时间：Mon-Sat 9:00-17:00",
+    localOnly: "当前是本地文件打开。请用预约服务器地址打开，才能发送邮件。",
+    savedNoEmail: ({ recipient }) => `预约已本地保存。配置邮件服务后会发送到 ${recipient}。`,
+    emailSent: ({ recipient }) => `预约已发送到 ${recipient}。`,
+    emailFailed: ({ recipient }) => `预约已本地保存，但邮件发送失败。请检查 ${recipient} 的服务器设置。`,
+    submitFailed: "预约暂时无法发送。请重试，或直接联系 Surround Auto。",
+    summary: ({ name, service, vehicle, date, phone, bookingId }) => {
+      const prefix = bookingId ? `预约号 ${bookingId}：` : "";
+      return `${prefix}${name}，你的${service}预约已记录：${vehicle}，期望日期 ${date}。我们会通过 ${phone} 联系你确认具体时间。`;
+    },
+    services: {
+      mechanical: "机械修理",
+      paint: "喷漆钣金",
+    },
+  },
+};
 
-    <main id="top">
-      <section class="hero">
-        <div class="hero-fallback" aria-hidden="true"></div>
-        <div class="hero-overlay" aria-hidden="true"></div>
-        <div class="hero-content">
-          <p class="eyebrow" data-i18n="heroEyebrow">Book your next service</p>
-          <h1 data-i18n="heroTitle">Surround Auto Booking Centre</h1>
-          <p class="hero-copy" data-i18n="heroCopy">
-            Mechanical repairs, vehicle checks, body paint and refinishing work, all booked in one clear place.
-          </p>
-          <div class="hero-actions">
-            <a class="button primary" href="#booking" data-i18n="heroPrimary">Book now</a>
-            <a class="button secondary" href="#services" data-i18n="heroSecondary">View services</a>
-          </div>
-        </div>
-      </section>
+const bookingForm = document.querySelector("#bookingForm");
+const confirmation = document.querySelector("#confirmation");
+const summaryText = document.querySelector("#summaryText");
+const deliveryText = document.querySelector("#deliveryText");
+const newBooking = document.querySelector("#newBooking");
+const serviceButtons = document.querySelectorAll(".service-select");
+const languageToggle = document.querySelector("#languageToggle");
+const toggleOptions = document.querySelectorAll("[data-lang-label]");
+const descriptionMeta = document.querySelector('meta[name="description"]');
+const submitButton = bookingForm.querySelector(".submit-button");
+const shopGrid = document.querySelector("#shopGrid");
 
-      <section class="quick-bar" aria-label="Service highlights">
-        <div>
-          <strong data-i18n="quickOneTitle">2 service streams</strong>
-          <span data-i18n="quickOneText">Mechanical repairs / Paint work</span>
-        </div>
-        <div>
-          <strong data-i18n="quickTwoTitle">Flexible online shop</strong>
-          <span data-i18n="quickTwoText">$1 NZD units for services you price over time</span>
-        </div>
-        <div>
-          <strong data-i18n="quickThreeTitle">Clear triage</strong>
-          <span data-i18n="quickThreeText">Choose the right team for your vehicle issue</span>
-        </div>
-      </section>
+let currentLanguage = "en";
+let shopCatalog = [];
 
-      <section class="section shop-section" id="shop">
-        <div class="section-heading shop-heading">
-          <div>
-            <p class="eyebrow" data-i18n="shopEyebrow">Shop</p>
-            <h2 data-i18n="shopTitle">Online service payments</h2>
-          </div>
-          <p class="shop-intro" data-i18n="shopIntro">
-            Create simple Stripe payments from flexible $1 NZD units. If a service should cost $50 NZD, the customer can buy 50 units.
-          </p>
-        </div>
-        <div class="shop-grid" id="shopGrid"></div>
-      </section>
+const getDictionary = () => translations[currentLanguage];
 
-      <section class="section" id="services">
-        <div class="section-heading">
-          <p class="eyebrow" data-i18n="servicesEyebrow">Services</p>
-          <h2 data-i18n="servicesTitle">Choose the work you need</h2>
-        </div>
-        <div class="service-grid">
-          <article class="service-card">
-            <div class="service-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path d="M21 7.5a5.4 5.4 0 0 1-6.9 6.9L7.3 21.2a2.2 2.2 0 0 1-3.1-3.1l6.8-6.8A5.4 5.4 0 0 1 17.9 4l-3.2 3.2 2.1 2.1L20 6.1c.4.4.7.9 1 1.4Z" />
-              </svg>
+const buildSummary = (payload) => {
+  const dictionary = getDictionary();
+  return dictionary.summary({
+    ...payload,
+    service: dictionary.services[payload.serviceKey],
+  });
+};
+
+const buildDeliveryMessage = (payload) => {
+  const dictionary = getDictionary();
+  const recipient =
+    payload.recipientEmail || (payload.serviceKey === "paint" ? "Panel@surroundauto.co.nz" : "info@surroundauto.co.nz");
+
+  if (payload.submitFailed) return dictionary.submitFailed;
+  if (payload.localOnly) return dictionary.localOnly;
+  if (payload.emailStatus === "sent") return dictionary.emailSent({ recipient });
+  if (payload.emailStatus === "failed") return dictionary.emailFailed({ recipient });
+  return dictionary.savedNoEmail({ recipient });
+};
+
+const updateConfirmation = () => {
+  if (confirmation.hidden || !summaryText.dataset.summaryPayload) return;
+
+  const payload = JSON.parse(summaryText.dataset.summaryPayload);
+  summaryText.textContent = buildSummary(payload);
+  deliveryText.textContent = buildDeliveryMessage(payload);
+};
+
+const renderShop = () => {
+  const dictionary = getDictionary();
+
+  if (!shopCatalog.length) {
+    shopGrid.innerHTML = `<article class="shop-card"><p class="shop-description">${dictionary.shopEmpty}</p></article>`;
+    return;
+  }
+
+  shopGrid.innerHTML = shopCatalog
+    .map((item) => {
+      const description = currentLanguage === "zh" ? item.descriptionZh : item.description;
+      const name = currentLanguage === "zh" ? item.nameZh : item.name;
+
+      return `
+        <article class="shop-card" data-product-id="${item.id}">
+          <div class="shop-card-head">
+            <div>
+              <span class="shop-chip">${item.category}</span>
+              <h3>${name}</h3>
             </div>
-            <h3 data-i18n="mechanicalTitle">Mechanical repairs</h3>
-            <p data-i18n="mechanicalCopy">
-              For servicing, engine issues, brakes, suspension, diagnostics, pre-WOF checks and general repair bookings.
+            <p class="shop-price">
+              ${currentLanguage === "zh" ? item.priceLabelZh || item.priceLabel : item.priceLabel}
+              <span>${currentLanguage === "zh" ? item.noteZh || item.note : item.note}</span>
             </p>
-            <button class="service-select" type="button" data-service="mechanical" data-i18n="mechanicalButton">
-              Book mechanical repairs
-            </button>
-          </article>
-
-          <article class="service-card accent">
-            <div class="service-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path d="M4 16.5c0-1.1.9-2 2-2h8.4l3.9-3.9a2.1 2.1 0 0 1 3 3L17.4 17.5H6a2 2 0 0 1-2-2Zm2.6 3.8a1.7 1.7 0 1 0 0-3.4 1.7 1.7 0 0 0 0 3.4Zm10.2-10.8L10 2.7 7.8 4.9l6.8 6.8 2.2-2.2Z" />
-              </svg>
-            </div>
-            <h3 data-i18n="paintTitle">Paint work</h3>
-            <p data-i18n="paintCopy">
-              For scratch repair, panel paint, bumper refinishing, body repairs and exterior refresh bookings.
-            </p>
-            <button class="service-select" type="button" data-service="paint" data-i18n="paintButton">
-              Book paint work
-            </button>
-          </article>
-        </div>
-      </section>
-
-      <section class="booking-section" id="booking">
-        <div class="booking-copy">
-          <p class="eyebrow" data-i18n="bookingEyebrow">Appointment</p>
-          <h2 data-i18n="bookingTitle">Enter your booking details</h2>
-          <p data-i18n="bookingIntro">
-            Select a service type, then leave your vehicle and contact details. The page will show a booking summary after you submit.
-          </p>
-          <div class="booking-note">
-            <strong data-i18n="bookingNoteTitle">Helpful details</strong>
-            <span data-i18n="bookingNoteText">Plate number, vehicle model, issue description and preferred date.</span>
           </div>
-        </div>
-
-        <form class="booking-form" id="bookingForm">
-          <fieldset>
-            <legend data-i18n="serviceTypeLabel">Service type</legend>
-            <div class="segmented" role="group" aria-label="Service type">
-              <label>
-                <input type="radio" name="serviceType" value="mechanical" checked />
-                <span data-i18n="mechanicalShort">Mechanical repairs</span>
-              </label>
-              <label>
-                <input type="radio" name="serviceType" value="paint" />
-                <span data-i18n="paintShort">Paint work</span>
-              </label>
+          <p class="shop-description">${description}</p>
+          <div class="shop-controls">
+            <div class="shop-quantity">
+              <label for="qty-${item.id}">${dictionary.shopQuantityLabel}</label>
+              <input
+                id="qty-${item.id}"
+                class="shop-qty-input"
+                type="number"
+                min="${item.minQuantity}"
+                step="1"
+                value="${item.defaultQuantity}"
+              />
             </div>
-          </fieldset>
-
-          <div class="form-grid">
-            <label>
-              <span data-i18n="nameLabel">Name</span>
-              <input name="name" type="text" placeholder="e.g. Chen" required data-i18n-attr="placeholder:namePlaceholder" />
-            </label>
-            <label>
-              <span data-i18n="phoneLabel">Phone</span>
-              <input name="phone" type="tel" placeholder="e.g. 021 000 0000" required data-i18n-attr="placeholder:phonePlaceholder" />
-            </label>
-            <label>
-              <span data-i18n="emailLabel">Email</span>
-              <input name="email" type="email" placeholder="name@example.com" />
-            </label>
-            <label>
-              <span data-i18n="dateLabel">Preferred date</span>
-              <input name="date" type="date" required />
-            </label>
-            <label>
-              <span data-i18n="vehicleLabel">Vehicle</span>
-              <input name="vehicle" type="text" placeholder="e.g. Toyota Aqua 2016" required data-i18n-attr="placeholder:vehiclePlaceholder" />
-            </label>
-            <label>
-              <span data-i18n="plateLabel">Plate number</span>
-              <input name="plate" type="text" placeholder="e.g. ABC123" data-i18n-attr="placeholder:platePlaceholder" />
-            </label>
+            <button class="button primary shop-button" type="button" data-shop-buy="${item.id}">
+              ${dictionary.shopBuyButton}
+            </button>
           </div>
+          <p class="shop-note">${currentLanguage === "zh" ? item.helperZh || item.helper : item.helper}</p>
+          <p class="shop-status" id="shop-status-${item.id}"></p>
+        </article>
+      `;
+    })
+    .join("");
 
-          <label>
-            <span data-i18n="detailsLabel">Issue details</span>
-            <textarea
-              name="details"
-              rows="5"
-              placeholder="Briefly describe the issue, damage location or work you want done"
-              required
-              data-i18n-attr="placeholder:detailsPlaceholder"
-            ></textarea>
-          </label>
+  document.querySelectorAll("[data-shop-buy]").forEach((button) => {
+    button.addEventListener("click", () => handleShopCheckout(button.dataset.shopBuy));
+  });
+};
 
-          <button class="submit-button" type="submit" data-i18n="submitButton">Submit booking</button>
-          <p class="privacy-note" data-i18n="privacyNote">Bookings are routed to the correct Surround Auto team when this site is opened through the booking server.</p>
-        </form>
-      </section>
+const setLanguage = (language) => {
+  currentLanguage = language;
+  const dictionary = getDictionary();
 
-      <section class="confirmation" id="confirmation" aria-live="polite" hidden>
-        <div>
-          <p class="eyebrow" data-i18n="confirmationEyebrow">Request received</p>
-          <h2 data-i18n="confirmationTitle">Booking summary</h2>
-          <p id="summaryText"></p>
-          <p class="delivery-status" id="deliveryText"></p>
-        </div>
-        <div class="confirmation-actions">
-          <button class="button secondary" id="newBooking" type="button" data-i18n="newBookingButton">Start again</button>
-        </div>
-      </section>
+  document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
+  document.title = dictionary.pageTitle;
+  descriptionMeta.setAttribute("content", dictionary.metaDescription);
 
-      <section class="contact-strip" id="contact">
-        <div>
-          <p class="eyebrow" data-i18n="contactEyebrow">Contact</p>
-          <h2>Surround Auto</h2>
-        </div>
-        <div class="contact-list">
-          <span data-i18n="contactPhone">Phone: 021 000 0000</span>
-          <span data-i18n="contactAddress">Address: Auckland, New Zealand</span>
-          <span data-i18n="contactHours">Hours: Mon-Sat 8:30-17:30</span>
-        </div>
-      </section>
-    </main>
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    element.textContent = dictionary[element.dataset.i18n];
+  });
 
-    <script src="./app.js"></script>
-  </body>
-</html>
+  document.querySelectorAll("[data-i18n-attr]").forEach((element) => {
+    element.dataset.i18nAttr.split(",").forEach((pair) => {
+      const [attribute, key] = pair.split(":");
+      element.setAttribute(attribute.trim(), dictionary[key.trim()]);
+    });
+  });
+
+  toggleOptions.forEach((option) => {
+    option.classList.toggle("active", option.dataset.langLabel === language);
+  });
+
+  languageToggle.setAttribute("aria-pressed", String(language === "zh"));
+  renderShop();
+  updateConfirmation();
+};
+
+const setService = (service) => {
+  const input = document.querySelector(`input[name="serviceType"][value="${service}"]`);
+  if (input) input.checked = true;
+  document.querySelector("#booking").scrollIntoView({ behavior: "smooth", block: "start" });
+};
+
+const getFormPayload = () => {
+  const formData = new FormData(bookingForm);
+  return {
+    name: String(formData.get("name") || "").trim(),
+    phone: String(formData.get("phone") || "").trim(),
+    email: String(formData.get("email") || "").trim(),
+    preferredDate: String(formData.get("date") || "").trim(),
+    vehicle: String(formData.get("vehicle") || "").trim(),
+    plate: String(formData.get("plate") || "").trim(),
+    details: String(formData.get("details") || "").trim(),
+    serviceKey: String(formData.get("serviceType") || "mechanical"),
+    language: currentLanguage,
+  };
+};
+
+const showConfirmation = (payload) => {
+  summaryText.dataset.summaryPayload = JSON.stringify(payload);
+  summaryText.textContent = buildSummary(payload);
+  deliveryText.textContent = buildDeliveryMessage(payload);
+  confirmation.hidden = false;
+  confirmation.scrollIntoView({ behavior: "smooth", block: "center" });
+};
+
+const submitToServer = async (payload) => {
+  const response = await fetch("/api/bookings", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  const result = await response.json();
+  if (!response.ok || !result.ok) throw new Error(result.error || "Booking request failed");
+  return result;
+};
+
+const loadShopCatalog = async () => {
+  const dictionary = getDictionary();
+  shopGrid.innerHTML = `<article class="shop-card"><p class="shop-description">${dictionary.shopLoading}</p></article>`;
+
+  if (window.location.protocol === "file:") {
+    shopGrid.innerHTML = `<article class="shop-card"><p class="shop-description">${dictionary.shopLocalOnly}</p></article>`;
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/shop-catalog");
+    const result = await response.json();
+    if (!response.ok || !result.ok) throw new Error(result.error || "Catalog failed");
+    shopCatalog = result.items || [];
+    renderShop();
+  } catch {
+    shopGrid.innerHTML = `<article class="shop-card"><p class="shop-description">${dictionary.shopError}</p></article>`;
+  }
+};
+
+const setShopStatus = (productId, message, isError = false) => {
+  const target = document.querySelector(`#shop-status-${productId}`);
+  if (!target) return;
+  target.textContent = message;
+  target.classList.toggle("error", isError);
+};
+
+const handleShopCheckout = async (productId) => {
+  const dictionary = getDictionary();
+  const button = document.querySelector(`[data-shop-buy="${productId}"]`);
+  const qtyInput = document.querySelector(`#qty-${productId}`);
+  const product = shopCatalog.find((item) => item.id === productId);
+  if (!button || !qtyInput || !product) return;
+
+  const quantity = Math.max(product.minQuantity, Number(qtyInput.value || product.defaultQuantity));
+  qtyInput.value = String(quantity);
+
+  if (window.location.protocol === "file:") {
+    setShopStatus(productId, dictionary.shopLocalOnly, true);
+    return;
+  }
+
+  button.disabled = true;
+  setShopStatus(productId, dictionary.shopCreating, false);
+
+  try {
+    const response = await fetch("/api/shop-checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        productId,
+        quantity,
+        language: currentLanguage,
+      }),
+    });
+
+    const result = await response.json();
+    if (!response.ok || !result.ok) throw new Error(result.error || "Checkout failed");
+
+    if (result.status === "ready" && result.checkoutUrl) {
+      setShopStatus(productId, dictionary.shopReady, false);
+      window.location.href = result.checkoutUrl;
+      return;
+    }
+
+    setShopStatus(productId, dictionary.shopNotConfigured, true);
+  } catch {
+    setShopStatus(productId, dictionary.shopError, true);
+  } finally {
+    button.disabled = false;
+  }
+};
+
+serviceButtons.forEach((button) => {
+  button.addEventListener("click", () => setService(button.dataset.service));
+});
+
+languageToggle.addEventListener("click", () => {
+  setLanguage(currentLanguage === "en" ? "zh" : "en");
+});
+
+bookingForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const dictionary = getDictionary();
+  const payload = getFormPayload();
+  const date = payload.preferredDate;
+
+  submitButton.disabled = true;
+  submitButton.textContent = dictionary.submittingButton;
+
+  try {
+    if (window.location.protocol === "file:") {
+      showConfirmation({
+        ...payload,
+        date,
+        localOnly: true,
+        emailStatus: "not_configured",
+      });
+      return;
+    }
+
+    const result = await submitToServer(payload);
+    showConfirmation({
+      ...payload,
+      date,
+      bookingId: result.bookingId,
+      recipientEmail: result.recipientEmail,
+      emailStatus: result.emailStatus,
+    });
+  } catch {
+    showConfirmation({
+      ...payload,
+      date,
+      submitFailed: true,
+      emailStatus: "failed",
+    });
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = getDictionary().submitButton;
+  }
+});
+
+newBooking.addEventListener("click", () => {
+  confirmation.hidden = true;
+  delete summaryText.dataset.summaryPayload;
+  deliveryText.textContent = "";
+  bookingForm.reset();
+  document.querySelector("#booking").scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
+setLanguage("en");
+loadShopCatalog();
