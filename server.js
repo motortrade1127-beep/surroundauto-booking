@@ -201,6 +201,9 @@ const sendBookingEmail = async (booking) => {
 
   const transporter = nodemailer.createTransport({
     service: "gmail",
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 10000,
     auth: {
       user: config.gmailUser,
       pass: config.gmailAppPassword,

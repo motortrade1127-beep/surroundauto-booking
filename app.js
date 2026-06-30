@@ -334,15 +334,23 @@ const showConfirmation = (payload) => {
 };
 
 const submitToServer = async (payload) => {
-  const response = await fetch("/api/bookings", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), 15000);
 
-  const result = await response.json();
-  if (!response.ok || !result.ok) throw new Error(result.error || "Booking request failed");
-  return result;
+  try {
+    const response = await fetch("/api/bookings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+
+    const result = await response.json();
+    if (!response.ok || !result.ok) throw new Error(result.error || "Booking request failed");
+    return result;
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
 };
 
 const loadShopCatalog = async () => {
